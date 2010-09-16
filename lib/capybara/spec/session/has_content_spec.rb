@@ -52,6 +52,37 @@ shared_examples_for "has_content" do
       @session.visit('/with-quotes')
       @session.should have_content(%q{"you can't do that."})
     end
+
+    describe 'inconsistent/unintuitive behavior' do
+      before(:each){Capybara.ignore_hidden_elements = true}
+      after(:each){Capybara.ignore_hidden_elements = false}
+      
+      it 'should be false if content is within an element that is hidden' do
+        @session.visit('/with_html')
+        @session.should_not have_content('Inside element that is hidden')
+      end
+
+      it 'should be false if content is within an element that is hidden by an ancestor' do
+        @session.visit('/with_html')
+        @session.should_not have_content('Inside element with hidden ancestor')
+      end
+      
+      describe 'with scope' do
+        it 'should be false if content is within an element that is hidden' do
+          @session.visit('/with_html')
+          @session.within(:css, "div#wrapper") do
+            @session.should_not have_content('Inside element that is hidden')
+          end
+        end
+
+        it 'should be false if content is within an element that is hidden by an ancestor' do
+          @session.visit('/with_html')
+          @session.within(:css, "div#wrapper") do
+            @session.should_not have_content('Inside element with hidden ancestor')
+          end
+        end
+      end
+    end
   end
 
   describe '#has_no_content?' do
@@ -102,5 +133,38 @@ shared_examples_for "has_content" do
       @session.visit('/with-quotes')
       @session.should_not have_no_content(%q{"you can't do that."})
     end
+
+
+    describe 'inconsistent behavior' do
+      before(:all){Capybara.ignore_hidden_elements = true}
+      after(:all){Capybara.ignore_hidden_elements = false}
+      
+      it 'should be true if content is within an element that is hidden' do
+        @session.visit('/with_html')
+        @session.should have_no_content('Inside element that is hidden')
+      end
+
+      it 'should be true if content is within an element that is hidden by an ancestor' do
+        @session.visit('/with_html')
+        @session.should have_no_content('Inside element with hidden ancestor')
+      end
+      
+      describe 'with scope' do
+        it 'should be true if content is within an element that is hidden' do
+          @session.visit('/with_html')
+          @session.within(:css, "div#wrapper") do
+            @session.should have_no_content('Inside element that is hidden')
+          end
+        end
+
+        it 'should be true if content is within an element that is hidden by an ancestor' do
+          @session.visit('/with_html')
+          @session.within(:css, "div#wrapper") do
+            @session.should have_no_content('Inside element with hidden ancestor')
+          end
+        end
+      end
+    end
+
   end
 end
